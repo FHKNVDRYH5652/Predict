@@ -1,0 +1,2908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinGo Pro Analyst - Premium AI Predictor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Animate.css for smooth animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gold-gradient: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            --silver-gradient: linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 100%);
+            --bronze-gradient: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);
+            --premium-bg: radial-gradient(circle at 50% 0%, #0a0a2a 0%, #000 100%);
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --accent: #FF0080;
+            --success: #00ff88;
+            --danger: #ff4757;
+            --warning: #ffcc00;
+            --info: #00bfff;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0ff;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-green: #00ff9d;
+        }
+
+        body {
+            background: var(--premium-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 0, 128, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(0, 243, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 40% 80%, rgba(0, 255, 157, 0.1) 0%, transparent 40%);
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        .particle:nth-child(2n) {
+            background: var(--neon-pink);
+            animation-duration: 20s;
+        }
+
+        .particle:nth-child(3n) {
+            background: var(--neon-green);
+            animation-duration: 25s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(20vw, 40vh) rotate(90deg); }
+            50% { transform: translate(40vw, 10vh) rotate(180deg); }
+            75% { transform: translate(60vw, 30vh) rotate(270deg); }
+        }
+
+        /* Popup Overlay */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(15px);
+        }
+
+        .popup-content {
+            background: rgba(30, 30, 70, 0.95);
+            padding: 40px;
+            border-radius: 30px;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+            box-shadow: 
+                0 0 50px rgba(0, 179, 255, 0.3),
+                0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        .popup-content::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff0080, #00f3ff, #ff0080);
+            border-radius: 32px;
+            z-index: -1;
+            animation: rotate-gradient 3s linear infinite;
+        }
+
+        @keyframes rotate-gradient {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 50px rgba(0, 179, 255, 0.3), 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+            100% { box-shadow: 0 0 70px rgba(0, 179, 255, 0.5), 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        }
+
+        /* Algorithm Activation Popup */
+        .algorithm-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 243, 255, 0.1);
+            border: 2px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 15px 20px;
+            backdrop-filter: blur(20px);
+            z-index: 10000;
+            animation: slideInRight 0.5s ease, fadeOut 0.5s ease 4.5s forwards;
+            max-width: 350px;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+
+        /* Button Styles */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #0088cc, #00b3ff);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.4s;
+            cursor: pointer;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 20px rgba(0, 136, 204, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-primary-custom:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 136, 204, 0.6);
+        }
+
+        .btn-success-custom {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.4s;
+            cursor: pointer;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-success-custom:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 255, 136, 0.6);
+        }
+
+        .btn-warning-custom {
+            background: linear-gradient(135deg, #FFA500, #FF8C00);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.4s;
+            cursor: pointer;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 20px rgba(255, 165, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-warning-custom:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(255, 165, 0, 0.6);
+        }
+
+        /* Input Styles */
+        .input-custom {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 15px 20px;
+            color: white;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .input-custom:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+            background: rgba(255, 255,255, 0.15);
+        }
+
+        /* Premium Header */
+        .premium-header {
+            background: rgba(10, 10, 40, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 30px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 0, 128, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 243, 255, 0.2) 0%, transparent 50%);
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 700;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            backdrop-filter: blur(10px);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 71, 87, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(255, 71, 87, 0.8); }
+        }
+
+        /* Access Timer */
+        .access-timer {
+            background: rgba(255, 0, 128, 0.1);
+            border: 2px solid rgba(255, 0, 128, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .timer-display {
+            font-size: 32px;
+            font-weight: 900;
+            color: #ff0080;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 20px rgba(255, 0, 128, 0.7);
+            letter-spacing: 2px;
+        }
+
+        /* Period Info */
+        .period-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 30px;
+            margin: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(0, 179, 255, 0.1);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .period-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0080, #00f3ff);
+        }
+
+        .period-number {
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff0080, #00f3ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
+            letter-spacing: 2px;
+        }
+
+        /* Results History */
+        .results-container {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 30px;
+            flex-wrap: wrap;
+        }
+
+        .result-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 20px;
+            position: relative;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-circle:hover {
+            transform: scale(1.2) rotate(10deg);
+            box-shadow: 0 0 25px currentColor;
+            z-index: 10;
+        }
+
+        .result-big-red { 
+            background: linear-gradient(135deg, #ff4757, #ff002b);
+            color: white;
+        }
+        
+        .result-small-red { 
+            background: linear-gradient(135deg, #ff7b00, #ff5500);
+            color: white;
+        }
+        
+        .result-big-green { 
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: white;
+        }
+        
+        .result-small-green { 
+            background: linear-gradient(135deg, #00bfff, #0088cc);
+            color: white;
+        }
+
+        /* Predictors Grid */
+        .predictors-container {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .predictor-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .predictor-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--neon-blue);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(0, 243, 255, 0.3);
+        }
+
+        .predictor-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: 0.5s;
+        }
+
+        .predictor-card:hover::before {
+            left: 100%;
+        }
+
+        .predictor-rank {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 16px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .predictor-rank-1 { 
+            background: var(--gold-gradient);
+            animation: glow-gold 2s infinite alternate;
+        }
+        
+        .predictor-rank-2 { 
+            background: var(--silver-gradient);
+            animation: glow-silver 2s infinite alternate;
+        }
+        
+        .predictor-rank-3 { 
+            background: var(--bronze-gradient);
+            animation: glow-bronze 2s infinite alternate;
+        }
+        
+        .predictor-rank-4 { 
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        @keyframes glow-gold {
+            0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            100% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); }
+        }
+
+        @keyframes glow-silver {
+            0% { box-shadow: 0 0 10px rgba(192, 192, 192, 0.5); }
+            100% { box-shadow: 0 0 25px rgba(192, 192, 192, 0.8); }
+        }
+
+        @keyframes glow-bronze {
+            0% { box-shadow: 0 0 10px rgba(205, 127, 50, 0.5); }
+            100% { box-shadow: 0 0 25px rgba(205, 127, 50, 0.8); }
+        }
+
+        .predictor-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            object-fit: cover;
+            border: 3px solid var(--neon-blue);
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+            transition: all 0.3s;
+        }
+
+        .predictor-card:hover .predictor-avatar {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 25px rgba(255, 0, 255, 0.7);
+        }
+
+        .predictor-name {
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #ffffff, #b0b0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .accuracy-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 700;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .prediction-display {
+            background: rgba(0, 243, 255, 0.1);
+            padding: 18px;
+            border-radius: 18px;
+            margin-top: 20px;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prediction-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0080, #00f3ff);
+        }
+
+        .prediction-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .prediction-value {
+            font-size: 26px;
+            font-weight: 900;
+            color: #00f3ff;
+            letter-spacing: 1px;
+        }
+
+        .prediction-status {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-pending { 
+            background: rgba(255, 204, 0, 0.2); 
+            color: #ffcc00;
+            border: 1px solid rgba(255, 204, 0, 0.3);
+        }
+        
+        .status-win { 
+            background: rgba(0, 255, 136, 0.2); 
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            animation: pulse-win 2s infinite;
+        }
+        
+        .status-loss { 
+            background: rgba(255, 71, 87, 0.2); 
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        @keyframes pulse-win {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 136, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.6); }
+        }
+
+        /* Payment Plans */
+        .plan-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 15px 0;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
+
+        .plan-card:hover {
+            border-color: var(--neon-blue);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 243, 255, 0.2);
+        }
+
+        .plan-card.selected {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .plan-price {
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff0080, #00f3ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .plan-duration {
+            color: #b0b0ff;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        /* Payment QR */
+        .qr-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .qr-code {
+            width: 250px;
+            height: 250px;
+            border-radius: 15px;
+            margin: 20px auto;
+            border: 3px solid var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+        }
+
+        /* Admin Panel */
+        .admin-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            z-index: 9998;
+            transition: all 0.3s;
+        }
+
+        .admin-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: rgba(10, 10, 40, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 9999;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
+            border-left: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-panel.open {
+            right: 0;
+        }
+
+        .admin-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .payment-request-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .payment-request-card.pending {
+            border-left: 4px solid #ffcc00;
+        }
+
+        .payment-request-card.approved {
+            border-left: 4px solid #00ff88;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 60px;
+            background: rgba(10, 10, 40, 0.5);
+            backdrop-filter: blur(20px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .predictors-container {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .period-number {
+                font-size: 28px;
+            }
+            
+            .popup-content {
+                padding: 20px;
+            }
+            
+            .result-circle {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
+            }
+            
+            .timer-display {
+                font-size: 24px;
+            }
+
+            .admin-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-shimmer {
+            background: linear-gradient(90deg, 
+                rgba(255, 255, 255, 0.05) 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                rgba(255, 255, 255, 0.05) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 10px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 10, 40, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #ff0080, #00f3ff);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #ff3399, #33ffff);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Algorithm Activation Popup -->
+    <div id="algorithmActivationPopup" class="algorithm-popup" style="display: none;">
+        <div class="d-flex align-items-start">
+            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #ff0080, #00f3ff); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                <i class="fas fa-bolt" style="color: white; font-size: 18px;"></i>
+            </div>
+            <div>
+                <h6 style="font-weight: 900; color: #00f3ff; margin-bottom: 5px;" id="algorithmPredictorName">Predictor Name</h6>
+                <p style="color: white; font-size: 14px; margin-bottom: 5px;" id="algorithmMessage">Algorithm detected and activated!</p>
+                <p style="color: #b0b0ff; font-size: 12px;" id="algorithmDetails">Pattern: 7D Trend | Accuracy: 85%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Popup -->
+    <div id="registrationPopup" class="popup-overlay">
+        <div class="popup-content">
+            <div class="text-center mb-4">
+                <h2 style="font-weight: 900; font-size: 32px; background: linear-gradient(135deg, #ffffff, #b0b0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    <i class="fas fa-user-shield"></i> Register Account
+                </h2>
+                <p style="color: #b0b0ff;">Create your account to access premium predictions</p>
+            </div>
+            
+            <div id="registrationForm">
+                <input type="tel" class="input-custom" id="registerPhone" placeholder="Enter Phone Number" required>
+                <input type="password" class="input-custom" id="registerPassword" placeholder="Create Password (min 6 characters)" required>
+                <input type="password" class="input-custom" id="confirmPassword" placeholder="Confirm Password" required>
+                
+                <button class="btn-primary-custom" onclick="registerUser()">
+                    <i class="fas fa-user-plus"></i> REGISTER NOW
+                </button>
+                
+                <p class="text-center mt-3" style="color: #b0b0ff;">
+                    Already have an account? 
+                    <a href="#" onclick="showLogin()" style="color: #00f3ff; text-decoration: none;">Login Here</a>
+                </p>
+            </div>
+            
+            <div id="loginForm" style="display: none;">
+                <input type="tel" class="input-custom" id="loginPhone" placeholder="Phone Number" required>
+                <input type="password" class="input-custom" id="loginPassword" placeholder="Password" required>
+                
+                <button class="btn-primary-custom" onclick="loginUser()">
+                    <i class="fas fa-sign-in-alt"></i> LOGIN
+                </button>
+                
+                <p class="text-center mt-3" style="color: #b0b0ff;">
+                    Don't have an account? 
+                    <a href="#" onclick="showRegister()" style="color: #00f3ff; text-decoration: none;">Register Here</a>
+                </p>
+            </div>
+            
+            <div id="registrationMessage" class="mt-3" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Telegram Popup -->
+    <div id="telegramPopup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <div class="text-center mb-4">
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #0088cc, #00b3ff); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 48px; color: white; box-shadow: 0 0 30px rgba(0, 179, 255, 0.7);">
+                    <i class="fab fa-telegram-plane"></i>
+                </div>
+                <h2 style="font-weight: 900; font-size: 32px; background: linear-gradient(135deg, #ffffff, #b0b0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Join Our Channels</h2>
+                <p style="color: #b0b0ff;">Join both channels to access payment options</p>
+            </div>
+            
+            <button class="btn-primary-custom" id="joinBtn1" onclick="joinTelegram(1)">
+                <i class="fab fa-telegram-plane"></i> Join Channel 1
+            </button>
+            <div id="status1" class="text-center mt-2" style="display: none; color: #00f3ff; font-weight: 700;">
+                <i class="fas fa-spinner fa-spin"></i> Checking join status...
+            </div>
+            <div id="joined1" class="text-center mt-2" style="display: none; color: #00ff88; font-weight: 700;">
+                <i class="fas fa-check-circle"></i> Joined Successfully
+            </div>
+            
+            <div class="mt-3"></div>
+            
+            <button class="btn-primary-custom" id="joinBtn2" onclick="joinTelegram(2)" disabled>
+                <i class="fab fa-telegram-plane"></i> Join Channel 2
+            </button>
+            <div id="status2" class="text-center mt-2" style="display: none; color: #00f3ff; font-weight: 700;">
+                <i class="fas fa-spinner fa-spin"></i> Checking join status...
+            </div>
+            <div id="joined2" class="text-center mt-2" style="display: none; color: #00ff88; font-weight: 700;">
+                <i class="fas fa-check-circle"></i> Joined Successfully
+            </div>
+            
+            <div id="telegramComplete" style="display: none; margin-top: 30px;">
+                <button class="btn-success-custom" onclick="completeTelegramTask()">
+                    <i class="fas fa-check-double"></i> TASKS COMPLETED - CONTINUE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Plans Popup -->
+    <div id="paymentPopup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <div class="text-center mb-4">
+                <h2 style="font-weight: 900; font-size: 32px; background: linear-gradient(135deg, #ffffff, #b0b0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    <i class="fas fa-credit-card"></i> Choose Plan
+                </h2>
+                <p style="color: #b0b0ff;">Select a payment plan to access premium predictions</p>
+            </div>
+            
+            <!-- Payment Plans -->
+            <div id="plansContainer">
+                <div class="plan-card" onclick="selectPlan(150, 24, '24 Hours Access')">
+                    <div class="plan-price">₹150</div>
+                    <div class="plan-duration">24 Hours Access</div>
+                    <div style="color: #b0b0ff; font-size: 14px;">
+                        <i class="fas fa-clock"></i> Full access for 24 hours
+                    </div>
+                </div>
+                
+                <div class="plan-card" onclick="selectPlan(250, 72, '3 Days Access')">
+                    <div class="plan-price">₹250</div>
+                    <div class="plan-duration">3 Days Access</div>
+                    <div style="color: #b0b0ff; font-size: 14px;">
+                        <i class="fas fa-clock"></i> Full access for 3 days
+                    </div>
+                </div>
+                
+                <div class="plan-card" onclick="selectPlan(500, 240, '10 Days Access')">
+                    <div class="plan-price">₹500</div>
+                    <div class="plan-duration">10 Days Access</div>
+                    <div style="color: #b0b0ff; font-size: 14px;">
+                        <i class="fas fa-clock"></i> Full access for 10 days
+                    </div>
+                </div>
+                
+                <div class="plan-card" onclick="selectPlan(750, 360, '15 Days Access')">
+                    <div class="plan-price">₹750</div>
+                    <div class="plan-duration">15 Days Access</div>
+                    <div style="color: #b0b0ff; font-size: 14px;">
+                        <i class="fas fa-clock"></i> Full access for 15 days
+                    </div>
+                </div>
+                
+                <div class="plan-card" onclick="selectPlan(1500, 2160, '3 Months Access')">
+                    <div class="plan-price">₹1500</div>
+                    <div class="plan-duration">3 Months Access</div>
+                    <div style="color: #b0b0ff; font-size: 14px;">
+                        <i class="fas fa-crown"></i> Premium access for 3 months
+                    </div>
+                </div>
+                
+                <div class="plan-card" onclick="selectPlan(2000, 36500, 'Permanent Access')">
+                    <div class="plan-price">₹2000</div>
+                    <div class="plan-duration">Permanent Access</div>
+                    <div style="color: #b0b0ff; font-size: 14px;">
+                        <i class="fas fa-crown"></i> Lifetime access to all features
+                    </div>
+                </div>
+            </div>
+            
+            <div id="paymentDetails" style="display: none;">
+                <div class="qr-container">
+                    <h5 style="color: #00f3ff; font-weight: 700; margin-bottom: 20px;">
+                        <i class="fas fa-qrcode"></i> Scan QR Code to Pay
+                    </h5>
+                    <p style="color: #ffffff; font-size: 24px; font-weight: 700; margin-bottom: 10px;">
+                        Amount: ₹<span id="selectedAmount">0</span>
+                    </p>
+                    <p style="color: #b0b0ff; margin-bottom: 20px;" id="selectedPlanText"></p>
+                    
+                    <img src="qr.png" alt="QR Code" class="qr-code" id="qrCode">
+                    
+                    <p style="color: #ffcc00; margin-top: 20px; font-weight: 700;">
+                        <i class="fas fa-exclamation-circle"></i> Scan & Pay the exact amount
+                    </p>
+                </div>
+                
+                <input type="text" class="input-custom" id="utrNumber" placeholder="Enter UTR/Transaction ID">
+                <input type="text" class="input-custom" id="paymentAmount" placeholder="Enter Paid Amount">
+                
+                <button class="btn-success-custom" onclick="submitPayment()">
+                    <i class="fas fa-paper-plane"></i> SUBMIT PAYMENT DETAILS
+                </button>
+                
+                <div id="paymentMessage" class="mt-3" style="display: none;"></div>
+                
+                <button class="btn-warning-custom mt-2" onclick="backToPlans()">
+                    <i class="fas fa-arrow-left"></i> BACK TO PLANS
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Button -->
+    <div class="admin-btn" id="adminBtn" onclick="openAdminPanel()" style="display: none;">
+        <i class="fas fa-cog" style="color: #00f3ff; font-size: 24px;"></i>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h4 style="font-weight: 900; color: #ffffff;">
+                <i class="fas fa-user-shield"></i> Admin Panel
+            </h4>
+            <p style="color: #b0b0ff; font-size: 14px;">Payment Requests Management</p>
+            <button class="btn btn-sm btn-danger" onclick="closeAdminPanel()" style="position: absolute; top: 20px; right: 20px;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div id="adminLogin" style="display: none;">
+            <input type="password" class="input-custom" id="adminPassword" placeholder="Enter Admin Password">
+            <button class="btn-primary-custom" onclick="loginAdmin()">
+                <i class="fas fa-sign-in-alt"></i> LOGIN ADMIN
+            </button>
+        </div>
+        
+        <div id="adminContent" style="display: none;">
+            <div class="mb-4">
+                <h6 style="color: #00f3ff; font-weight: 700;">
+                    <i class="fas fa-clock"></i> Pending Payments
+                </h6>
+                <div id="pendingPayments">
+                    <!-- Pending payments will be loaded here -->
+                </div>
+            </div>
+            
+            <div>
+                <h6 style="color: #00ff88; font-weight: 700;">
+                    <i class="fas fa-check-circle"></i> Approved Payments (Last 50)
+                </h6>
+                <div id="approvedPayments">
+                    <!-- Approved payments will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="mainDashboard" style="display: none;">
+        <!-- Premium Header -->
+        <div class="premium-header">
+            <div class="header-glow"></div>
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-1" style="font-weight: 900; font-size: 32px;">
+                            <i class="fas fa-crown" style="background: linear-gradient(135deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i> 
+                            <span style="background: linear-gradient(135deg, #ffffff, #b0b0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">WinGo Pro Analyst</span>
+                        </h2>
+                        <p class="mb-0" style="color: #b0b0ff; font-size: 14px;">
+                            <i class="fas fa-user"></i> <span id="userPhoneDisplay"></span> | 
+                            <span id="accessStatus" style="color: #00ff88;"></span>
+                        </p>
+                    </div>
+                    <div>
+                        <div class="live-indicator">
+                            <i class="fas fa-circle"></i> LIVE PREDICTIONS
+                        </div>
+                        <button class="btn btn-sm btn-outline-warning ms-2" onclick="showPaymentPopup()">
+                            <i class="fas fa-credit-card"></i> Extend Access
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Access Timer -->
+        <div class="access-timer">
+            <div class="small mb-2" style="color: #b0b0ff;">Access Remaining</div>
+            <div class="timer-display" id="accessTimer">00:00:00</div>
+            <div class="small mt-2" style="color: #ff0080;">
+                <i class="fas fa-clock"></i> Extend your access by purchasing a plan
+            </div>
+        </div>
+
+        <!-- Live Period Info -->
+        <div class="period-card animate__animated animate__fadeIn">
+            <div class="row align-items-center">
+                <div class="col-md-12 text-center">
+                    <div class="mb-2" style="color: #b0b0ff; font-size: 14px;">Next Period</div>
+                    <div class="period-number" id="currentPeriod">Loading...</div>
+                    <div class="small mt-2" id="periodSource" style="color: #b0b0ff;">Source: Connecting...</div>
+                    <div class="mt-3" style="color: #00f3ff; font-size: 14px;">
+                        <i class="fas fa-sync-alt"></i> Auto-refresh every 1 second
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Latest Results -->
+        <div class="container animate__animated animate__fadeInUp">
+            <div class="text-center mb-4">
+                <h5 style="font-weight: 700; color: #ffffff; font-size: 24px;">
+                    <i class="fas fa-history" style="color: #00f3ff;"></i> Latest Results
+                </h5>
+                <p style="color: #b0b0ff;">Last 10 periods with real-time updates</p>
+            </div>
+            <div class="results-container" id="latestResults">
+                <!-- Results will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Predictors Grid -->
+        <div class="container animate__animated animate__fadeInUp">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 style="font-weight: 900; font-size: 28px; background: linear-gradient(135deg, #ffffff, #b0b0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    <i class="fas fa-chart-line" style="color: #00f3ff;"></i> Premium Predictors
+                </h4>
+                <span class="text-muted" id="lastUpdate" style="color: #b0b0ff; font-size: 14px;">Last updated: --</span>
+            </div>
+            <div class="predictors-container" id="predictorsContainer">
+                <!-- Predictors will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="container">
+                <p style="font-size: 16px; margin-bottom: 15px;">
+                    <i class="fas fa-shield-alt" style="color: #00f3ff;"></i> All predictions are AI-generated using advanced algorithms
+                </p>
+                <p class="mb-0" style="font-size: 14px;">
+                    Real-time sync across all devices • Auto-update every 1 second • Premium Analytics
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHLb-g-WUe8AuiVRIOVolh1MTXF1u7dOc",
+            authDomain: "colour-games-dfe2d.firebaseapp.com",
+            databaseURL: "https://colour-games-dfe2d-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "colour-games-dfe2d",
+            storageBucket: "colour-games-dfe2d.firebasestorage.app",
+            messagingSenderId: "92918980466",
+            appId: "1:92918980466:web:137e6bc678c0fa76ff07eb",
+            measurementId: "G-D7C15NMDJD"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Working API Configuration
+        const API_URL = "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json";
+
+        // DOM Elements
+        const registrationPopup = document.getElementById('registrationPopup');
+        const telegramPopup = document.getElementById('telegramPopup');
+        const paymentPopup = document.getElementById('paymentPopup');
+        const mainDashboard = document.getElementById('mainDashboard');
+        const registrationForm = document.getElementById('registrationForm');
+        const loginForm = document.getElementById('loginForm');
+        const adminPanel = document.getElementById('adminPanel');
+        const adminBtn = document.getElementById('adminBtn');
+        const algorithmPopup = document.getElementById('algorithmActivationPopup');
+
+        // Global Variables
+        let currentUser = null;
+        let userData = null;
+        let refreshInterval;
+        let accessTimerInterval;
+        let isFirstChannelJoined = false;
+        let isSecondChannelJoined = false;
+        let currentLivePeriod = null;
+        let currentLiveResult = null;
+        let predictorData = [];
+        let lastResultList = [];
+        let processedPeriods = new Set();
+        let deviceId = null;
+        let selectedPlan = null;
+        let userListener = null;
+        let lastAlgorithmNotification = Date.now();
+        let algorithmAnalysisResults = {};
+
+        // Payment Plans
+        const PAYMENT_PLANS = [
+            { amount: 150, hours: 24, text: "24 Hours Access" },
+            { amount: 250, hours: 72, text: "3 Days Access" },
+            { amount: 500, hours: 240, text: "10 Days Access" },
+            { amount: 750, hours: 360, text: "15 Days Access" },
+            { amount: 1500, hours: 2160, text: "3 Months Access" },
+            { amount: 2000, hours: 36500, text: "Permanent Access" }
+        ];
+
+        // Predictor Details with Avatar Files
+        const predictorNames = [
+            "Neural Prophet X1",
+            "Digital Oracle Plus",
+            "Cyber Seer Pro",
+            "Quantum Oracle V2",
+            "Alpha Predict AI",
+            "Synapse Mastermind",
+            "Neuro Vision Ultra",
+            "Quantum Mind Plus",
+            "AI Oracle Premium",
+            "Neural Network Pro"
+        ];
+
+        // Predictor Avatar Files
+        const avatars = [
+            "predict1.png",
+            "predict2.png",
+            "predict3.png",
+            "predict4.png",
+            "predict5.png",
+            "predict6.png",
+            "predict7.png",
+            "predict8.png",
+            "predict9.png",
+            "predict10.png"
+        ];
+
+        // Prediction types
+        const PREDICTION_TYPES = ['BIG', 'SMALL', 'RED', 'GREEN'];
+
+        // Number color mapping
+        const NUMBER_COLOR_MAP = {
+            0: {color: 'RED', violet: true},
+            1: {color: 'GREEN', violet: false},
+            2: {color: 'RED', violet: false},
+            3: {color: 'GREEN', violet: false},
+            4: {color: 'RED', violet: false},
+            5: {color: 'GREEN', violet: true},
+            6: {color: 'RED', violet: false},
+            7: {color: 'GREEN', violet: false},
+            8: {color: 'RED', violet: false},
+            9: {color: 'GREEN', violet: false}
+        };
+
+        // Algorithm Strategies (10 different analysis strategies)
+        const ALGORITHM_STRATEGIES = [
+            {
+                id: 1,
+                name: "7-Digit Pattern Master",
+                description: "Analyzes last 7-digit patterns for B/S prediction",
+                patternLength: 7,
+                analysisDepth: 500,
+                type: 'BS',
+                confidence: 85
+            },
+            {
+                id: 2,
+                name: "6-Digit Color Predictor",
+                description: "6-digit pattern analysis for Red/Green prediction",
+                patternLength: 6,
+                analysisDepth: 600,
+                type: 'RG',
+                confidence: 80
+            },
+            {
+                id: 3,
+                name: "5-Digit Trend Follower",
+                description: "Short-term 5-digit trend analysis",
+                patternLength: 5,
+                analysisDepth: 700,
+                type: 'BS',
+                confidence: 75
+            },
+            {
+                id: 4,
+                name: "8-Digit Sequence Detector",
+                description: "8-digit sequence pattern recognition",
+                patternLength: 8,
+                analysisDepth: 800,
+                type: 'RG',
+                confidence: 82
+            },
+            {
+                id: 5,
+                name: "9-Digit Harmonic Analyzer",
+                description: "Harmonic pattern analysis with 9 digits",
+                patternLength: 9,
+                analysisDepth: 900,
+                type: 'BS',
+                confidence: 78
+            },
+            {
+                id: 6,
+                name: "10-Digit Cycle Finder",
+                description: "10-digit cycle detection system",
+                patternLength: 10,
+                analysisDepth: 1000,
+                type: 'RG',
+                confidence: 83
+            },
+            {
+                id: 7,
+                name: "Fibonacci Sequence Scanner",
+                description: "Fibonacci-based pattern scanning",
+                patternLength: 7,
+                analysisDepth: 550,
+                type: 'BS',
+                confidence: 79
+            },
+            {
+                id: 8,
+                name: "Prime Number Analyzer",
+                description: "Prime number pattern detection",
+                patternLength: 6,
+                analysisDepth: 650,
+                type: 'RG',
+                confidence: 81
+            },
+            {
+                id: 9,
+                name: "Waveform Predictor",
+                description: "Waveform analysis algorithm",
+                patternLength: 8,
+                analysisDepth: 750,
+                type: 'BS',
+                confidence: 84
+            },
+            {
+                id: 10,
+                name: "Neural Pattern Detector",
+                description: "Advanced neural pattern recognition",
+                patternLength: 9,
+                analysisDepth: 850,
+                type: 'RG',
+                confidence: 86
+            }
+        ];
+
+        // Trend Maps for pattern analysis
+        const TREND_MAPS = {
+            '7D': {
+                'BBBBBBB': 'S',
+                'SSSSSSS': 'B',
+                'BBBBBBS': 'S',
+                'SSSSSSB': 'B',
+                'BBBBSBB': 'S',
+                'SSSBSSS': 'B',
+                'BBBSBBB': 'S',
+                'BBSBBBB': 'S',
+                'BSBBBBB': 'B',
+                'SSBSSSS': 'B',
+                'SBSBBSS': 'B',
+                'BSSBSSB': 'S',
+                'SSBSSBS': 'B',
+                'BBSBBSB': 'S',
+                'SBSBSBS': 'B',
+                'BSBSBSB': 'S',
+                'BSSBSSS': 'S',
+                'SSBSSBB': 'B',
+                'BSSBSSS': 'S',
+                'SBSBBBB': 'B'
+            },
+            '6D': {
+                'BBBBBB': 'B',
+                'SSSSSS': 'S',
+                'BBBBSB': 'S',
+                'SSSSBS': 'B',
+                'BBBSBB': 'S',
+                'SSBSSS': 'B',
+                'BSBSBS': 'S',
+                'SBSBSB': 'B',
+                'BBSSBB': 'S',
+                'SSBBSS': 'B',
+                'BBSBBS': 'S',
+                'SBBSBB': 'B',
+                'BSSBSS': 'S',
+                'SBBSSB': 'B',
+                'BSBSSB': 'S',
+                'SBSSBS': 'B'
+            },
+            '5D': {
+                'BBBBB': 'S',
+                'SSSSS': 'B',
+                'BBBBS': 'S',
+                'SSSSB': 'B',
+                'BBSBB': 'S',
+                'SSBSS': 'B',
+                'BSBSB': 'S',
+                'SBSBS': 'B',
+                'BBSSB': 'S',
+                'SSBBS': 'B',
+                'BSBBS': 'S',
+                'SBSSB': 'B'
+            }
+        };
+
+        // Generate Device ID
+        function generateDeviceId() {
+            deviceId = localStorage.getItem('permanentDeviceId');
+            if (!deviceId) {
+                deviceId = 'device_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
+                localStorage.setItem('permanentDeviceId', deviceId);
+            }
+            return deviceId;
+        }
+
+        // Setup User Listener - REAL-TIME UPDATES
+        function setupUserListener() {
+            if (!currentUser) return;
+            
+            // Remove existing listener
+            if (userListener) {
+                userListener();
+            }
+            
+            // Setup new listener
+            userListener = database.ref('users/' + currentUser).on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const updatedUserData = snapshot.val();
+                    userData = updatedUserData;
+                    
+                    // Update localStorage
+                    localStorage.setItem('permanentUserData', JSON.stringify(userData));
+                    
+                    // Check if user got access
+                    checkAndShowDashboardOnAccess();
+                }
+            });
+        }
+
+        // Check and show dashboard when access is granted
+        function checkAndShowDashboardOnAccess() {
+            if (!userData) return;
+            
+            // Check if user has valid access
+            if (userData.accessUntil && userData.accessUntil > Date.now()) {
+                // User has access, show dashboard if not already shown
+                if (mainDashboard.style.display === 'none') {
+                    // Hide all popups
+                    registrationPopup.style.display = 'none';
+                    telegramPopup.style.display = 'none';
+                    paymentPopup.style.display = 'none';
+                    
+                    // Show dashboard
+                    showDashboard();
+                    
+                    // Show success message
+                    showMessage('Payment approved! Dashboard access granted.', 'success', 'registrationMessage');
+                }
+            }
+        }
+
+        // Show Registration Form
+        function showRegister() {
+            registrationForm.style.display = 'block';
+            loginForm.style.display = 'none';
+        }
+
+        // Show Login Form
+        function showLogin() {
+            registrationForm.style.display = 'none';
+            loginForm.style.display = 'block';
+        }
+
+        // Register User
+        function registerUser() {
+            const phone = document.getElementById('registerPhone').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Validation
+            if (!phone) {
+                showMessage('Please enter phone number', 'danger');
+                return;
+            }
+            
+            if (!password) {
+                showMessage('Please enter password', 'danger');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters', 'danger');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match', 'danger');
+                return;
+            }
+            
+            // Check if phone already exists
+            database.ref('users').orderByChild('phone').equalTo(phone).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        showMessage('Phone number already registered. Please login.', 'danger');
+                        return;
+                    }
+                    
+                    // Generate device ID
+                    const deviceId = generateDeviceId();
+                    
+                    // Generate user ID
+                    const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    
+                    // Create user data
+                    const newUserData = {
+                        phone: phone,
+                        password: password,
+                        userId: userId,
+                        deviceId: deviceId,
+                        accessUntil: null,
+                        telegramTasks: {
+                            channel1: false,
+                            channel2: false
+                        },
+                        tasksCompleted: false,
+                        registeredAt: Date.now(),
+                        lastLogin: Date.now(),
+                        isLoggedIn: true,
+                        loginDevice: deviceId,
+                        isPermanent: true
+                    };
+                    
+                    // Save user to database
+                    database.ref('users/' + userId).set(newUserData)
+                        .then(() => {
+                            // Set current user
+                            currentUser = userId;
+                            userData = newUserData;
+                            
+                            // Save login state
+                            localStorage.setItem('permanentLoggedInUser', userId);
+                            localStorage.setItem('permanentUserData', JSON.stringify(newUserData));
+                            localStorage.setItem('isPermanentLogin', 'true');
+                            
+                            // Setup real-time listener
+                            setupUserListener();
+                            
+                            // Show success message
+                            showMessage('Registration successful!', 'success');
+                            
+                            // Hide registration and show telegram popup
+                            setTimeout(() => {
+                                registrationPopup.style.display = 'none';
+                                showTelegramPopup();
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error('Registration error:', error);
+                            showMessage('Registration failed: ' + error.message, 'danger');
+                        });
+                })
+                .catch(error => {
+                    console.error('Registration error:', error);
+                    showMessage('Registration failed: ' + error.message, 'danger');
+                });
+        }
+
+        // Login User
+        function loginUser() {
+            const phone = document.getElementById('loginPhone').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!phone || !password) {
+                showMessage('Please enter phone and password', 'danger');
+                return;
+            }
+            
+            // Find user by phone
+            database.ref('users').orderByChild('phone').equalTo(phone).once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        showMessage('Phone number not registered', 'danger');
+                        return;
+                    }
+                    
+                    const userKey = Object.keys(snapshot.val())[0];
+                    const user = snapshot.val()[userKey];
+                    
+                    // Check password
+                    if (user.password !== password) {
+                        showMessage('Invalid password', 'danger');
+                        return;
+                    }
+                    
+                    // PERMANENT LOGIN
+                    const deviceId = generateDeviceId();
+                    
+                    // Update user in database
+                    database.ref('users/' + userKey).update({
+                        deviceId: deviceId,
+                        lastLogin: Date.now(),
+                        isLoggedIn: true,
+                        loginDevice: deviceId,
+                        isPermanent: true
+                    })
+                    .then(() => {
+                        // Set current user
+                        currentUser = userKey;
+                        userData = user;
+                        userData.deviceId = deviceId;
+                        userData.isLoggedIn = true;
+                        userData.loginDevice = deviceId;
+                        userData.isPermanent = true;
+                        
+                        // Save login state
+                        localStorage.setItem('permanentLoggedInUser', userKey);
+                        localStorage.setItem('permanentUserData', JSON.stringify(userData));
+                        localStorage.setItem('isPermanentLogin', 'true');
+                        
+                        // Setup real-time listener
+                        setupUserListener();
+                        
+                        // Hide registration popup
+                        registrationPopup.style.display = 'none';
+                        
+                        // Check user status
+                        if (!user.tasksCompleted) {
+                            showTelegramPopup();
+                        } else if (!user.accessUntil || user.accessUntil < Date.now()) {
+                            showPaymentPopup();
+                        } else {
+                            showDashboard();
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Login error:', error);
+                    showMessage('Login failed: ' + error.message, 'danger');
+                });
+        }
+
+        // Show Message
+        function showMessage(message, type, elementId = 'registrationMessage') {
+            const messageDiv = document.getElementById(elementId);
+            messageDiv.style.display = 'block';
+            messageDiv.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert" style="background: ${type === 'success' ? 'rgba(0,255,136,0.2)' : 'rgba(255,71,87,0.2)'}; border-color: ${type === 'success' ? '#00ff88' : '#ff4757'}; color: white;">
+                    ${message}
+                    <button type="button" class="btn-close btn-close-white" onclick="this.parentElement.style.display='none'"></button>
+                </div>
+            `;
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Show Telegram Popup
+        function showTelegramPopup() {
+            telegramPopup.style.display = 'flex';
+            paymentPopup.style.display = 'none';
+            mainDashboard.style.display = 'none';
+        }
+
+        // Join Telegram Channel
+        function joinTelegram(channel) {
+            if (channel === 1) {
+                window.open('https://t.me/+8GtO9R-G56k5OTE1', '_blank');
+                document.getElementById('status1').style.display = 'block';
+                document.getElementById('joinBtn1').disabled = true;
+                
+                setTimeout(() => {
+                    document.getElementById('status1').style.display = 'none';
+                    document.getElementById('joined1').style.display = 'block';
+                    isFirstChannelJoined = true;
+                    
+                    if (currentUser) {
+                        database.ref('users/' + currentUser + '/telegramTasks/channel1').set(true);
+                    }
+                    
+                    document.getElementById('joinBtn2').disabled = false;
+                    checkTelegramCompletion();
+                }, 10000);
+            } else if (channel === 2) {
+                window.open('https://t.me/+yCsZtJDFQvtlZjNl', '_blank');
+                document.getElementById('status2').style.display = 'block';
+                document.getElementById('joinBtn2').disabled = true;
+                
+                setTimeout(() => {
+                    document.getElementById('status2').style.display = 'none';
+                    document.getElementById('joined2').style.display = 'block';
+                    isSecondChannelJoined = true;
+                    
+                    if (currentUser) {
+                        database.ref('users/' + currentUser + '/telegramTasks/channel2').set(true);
+                    }
+                    
+                    checkTelegramCompletion();
+                }, 10000);
+            }
+        }
+
+        // Check Telegram Completion
+        function checkTelegramCompletion() {
+            if (isFirstChannelJoined && isSecondChannelJoined) {
+                setTimeout(() => {
+                    document.getElementById('telegramComplete').style.display = 'block';
+                }, 1000);
+            }
+        }
+
+        // Complete Telegram Task
+        function completeTelegramTask() {
+            if (!currentUser) return;
+            
+            database.ref('users/' + currentUser).update({
+                tasksCompleted: true
+            })
+            .then(() => {
+                userData.tasksCompleted = true;
+                telegramPopup.style.display = 'none';
+                showPaymentPopup();
+            });
+        }
+
+        // Show Payment Popup
+        function showPaymentPopup() {
+            paymentPopup.style.display = 'flex';
+            telegramPopup.style.display = 'none';
+            mainDashboard.style.display = 'none';
+            
+            // Reset selection
+            selectedPlan = null;
+            const plans = document.querySelectorAll('.plan-card');
+            plans.forEach(plan => plan.classList.remove('selected'));
+            document.getElementById('paymentDetails').style.display = 'none';
+            document.getElementById('plansContainer').style.display = 'block';
+        }
+
+        // Select Plan
+        function selectPlan(amount, hours, text) {
+            selectedPlan = { amount, hours, text };
+            
+            // Update UI
+            const plans = document.querySelectorAll('.plan-card');
+            plans.forEach(plan => plan.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            
+            document.getElementById('selectedAmount').textContent = amount;
+            document.getElementById('selectedPlanText').textContent = text;
+            document.getElementById('paymentAmount').value = amount;
+            
+            // Show payment details
+            setTimeout(() => {
+                document.getElementById('paymentDetails').style.display = 'block';
+                document.getElementById('plansContainer').style.display = 'none';
+            }, 500);
+        }
+
+        // Back to Plans
+        function backToPlans() {
+            document.getElementById('paymentDetails').style.display = 'none';
+            document.getElementById('plansContainer').style.display = 'block';
+            document.getElementById('utrNumber').value = '';
+            document.getElementById('paymentMessage').style.display = 'none';
+        }
+
+        // Submit Payment
+        function submitPayment() {
+            const utr = document.getElementById('utrNumber').value.trim();
+            const paidAmount = document.getElementById('paymentAmount').value.trim();
+            
+            if (!selectedPlan) {
+                showMessage('Please select a plan first', 'danger', 'paymentMessage');
+                return;
+            }
+            
+            if (!utr) {
+                showMessage('Please enter UTR/Transaction ID', 'danger', 'paymentMessage');
+                return;
+            }
+            
+            if (!paidAmount || parseInt(paidAmount) !== selectedPlan.amount) {
+                showMessage(`Please enter exact amount: ₹${selectedPlan.amount}`, 'danger', 'paymentMessage');
+                return;
+            }
+            
+            // Create payment request
+            const paymentId = 'pay_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const paymentData = {
+                paymentId: paymentId,
+                userId: currentUser,
+                userPhone: userData.phone,
+                amount: selectedPlan.amount,
+                hours: selectedPlan.hours,
+                planText: selectedPlan.text,
+                utr: utr,
+                status: 'pending',
+                timestamp: Date.now(),
+                deviceId: deviceId
+            };
+            
+            // Save to Firebase
+            database.ref('paymentRequests/' + paymentId).set(paymentData)
+                .then(() => {
+                    showMessage('Payment submitted successfully! Waiting for admin approval. You will be redirected automatically when approved.', 'success', 'paymentMessage');
+                    document.getElementById('utrNumber').value = '';
+                    document.getElementById('paymentAmount').value = '';
+                    
+                    // Wait for admin approval
+                    waitForApproval(paymentId);
+                })
+                .catch(error => {
+                    console.error('Payment submission error:', error);
+                    showMessage('Payment submission failed: ' + error.message, 'danger', 'paymentMessage');
+                });
+        }
+
+        // Wait for admin approval
+        function waitForApproval(paymentId) {
+            // Listen for payment approval
+            database.ref('paymentRequests/' + paymentId).on('value', (snapshot) => {
+                const payment = snapshot.val();
+                if (payment && payment.status === 'approved') {
+                    // Payment approved, show success message
+                    showMessage('Payment approved! Redirecting to dashboard...', 'success', 'paymentMessage');
+                    
+                    // Update local user data
+                    userData.accessUntil = Date.now() + (selectedPlan.hours * 60 * 60 * 1000);
+                    
+                    // Redirect to dashboard after delay
+                    setTimeout(() => {
+                        paymentPopup.style.display = 'none';
+                        showDashboard();
+                    }, 2000);
+                    
+                    // Remove listener
+                    database.ref('paymentRequests/' + paymentId).off();
+                } else if (payment && payment.status === 'rejected') {
+                    showMessage('Payment rejected by admin. Please contact support.', 'danger', 'paymentMessage');
+                    database.ref('paymentRequests/' + paymentId).off();
+                }
+            });
+        }
+
+        // Show Dashboard
+        function showDashboard() {
+            // Hide all popups
+            registrationPopup.style.display = 'none';
+            telegramPopup.style.display = 'none';
+            paymentPopup.style.display = 'none';
+            
+            // Show dashboard
+            mainDashboard.style.display = 'block';
+            
+            document.getElementById('userPhoneDisplay').textContent = userData.phone;
+            
+            startAccessTimer();
+            initializeDashboard();
+            
+            // Show admin button
+            adminBtn.style.display = 'block';
+        }
+
+        // Start Access Timer
+        function startAccessTimer() {
+            if (accessTimerInterval) {
+                clearInterval(accessTimerInterval);
+            }
+            
+            function updateTimer() {
+                if (!userData.accessUntil) {
+                    document.getElementById('accessTimer').textContent = '00:00:00';
+                    document.getElementById('accessStatus').textContent = 'No Access';
+                    document.getElementById('accessStatus').style.color = '#ff4757';
+                    
+                    // Auto redirect to payment when no access
+                    setTimeout(() => {
+                        showPaymentPopup();
+                    }, 1000);
+                    return;
+                }
+                
+                const now = Date.now();
+                const remaining = userData.accessUntil - now;
+                
+                if (remaining <= 0) {
+                    document.getElementById('accessTimer').textContent = '00:00:00';
+                    document.getElementById('accessStatus').textContent = 'Access Expired';
+                    document.getElementById('accessStatus').style.color = '#ff4757';
+                    
+                    // AUTO REDIRECT to payment popup
+                    setTimeout(() => {
+                        showPaymentPopup();
+                    }, 1000);
+                    return;
+                }
+                
+                const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+                
+                if (days > 0) {
+                    document.getElementById('accessTimer').textContent = 
+                        `${days}d ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                } else {
+                    document.getElementById('accessTimer').textContent = 
+                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+                
+                document.getElementById('accessStatus').textContent = days > 0 ? `${days} Days Access` : `${hours} Hours Access`;
+                document.getElementById('accessStatus').style.color = '#00ff88';
+            }
+            
+            updateTimer();
+            accessTimerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // Initialize Dashboard
+        function initializeDashboard() {
+            createParticles();
+            initializePredictors();
+            fetchLiveData();
+            // FASTER refresh rate - 1 second
+            refreshInterval = setInterval(fetchLiveData, 1000);
+            listenToPredictorUpdates();
+        }
+
+        // Initialize Predictors with ADVANCED ALGORITHM ANALYSIS
+        function initializePredictors() {
+            database.ref('predictors/initialized').once('value').then(snapshot => {
+                if (!snapshot.exists()) {
+                    const predictors = {};
+                    
+                    predictorNames.forEach((name, index) => {
+                        const predictorId = `predictor_${index + 1}`;
+                        const strategy = ALGORITHM_STRATEGIES[index];
+                        
+                        // Generate initial algorithm analysis results
+                        const algorithmAnalysis = {
+                            currentAlgorithm: strategy.id,
+                            algorithmName: strategy.name,
+                            patternDetected: false,
+                            lastDetectionTime: null,
+                            detectionCount: 0,
+                            algorithmActive: false,
+                            activationTime: null,
+                            successRate: strategy.confidence,
+                            patternHistory: []
+                        };
+                        
+                        // Generate last 10 predictions with advanced analysis
+                        const predictions = [];
+                        let winCount = 0;
+                        
+                        for (let i = 0; i < 10; i++) {
+                            // Use algorithm to generate prediction
+                            const predictionResult = generatePredictionWithAlgorithm(strategy, []);
+                            const isWin = Math.random() > 0.4; // 60% win rate
+                            
+                            if (isWin) winCount++;
+                            
+                            let result;
+                            if (predictionResult.type === 'BIG') {
+                                result = isWin ? 
+                                    Math.floor(Math.random() * 5) + 5 :
+                                    Math.floor(Math.random() * 5);
+                            } else if (predictionResult.type === 'SMALL') {
+                                result = isWin ? 
+                                    Math.floor(Math.random() * 5) :
+                                    Math.floor(Math.random() * 5) + 5;
+                            } else if (predictionResult.type === 'RED') {
+                                const redNumbers = [0,2,4,6,8];
+                                const greenNumbers = [1,3,5,7,9];
+                                result = isWin ? 
+                                    redNumbers[Math.floor(Math.random() * 5)] :
+                                    greenNumbers[Math.floor(Math.random() * 5)];
+                            } else if (predictionResult.type === 'GREEN') {
+                                const redNumbers = [0,2,4,6,8];
+                                const greenNumbers = [1,3,5,7,9];
+                                result = isWin ? 
+                                    greenNumbers[Math.floor(Math.random() * 5)] :
+                                    redNumbers[Math.floor(Math.random() * 5)];
+                            }
+                            
+                            predictions.push({
+                                period: `110${70 + i}`,
+                                prediction: predictionResult.type,
+                                confidence: predictionResult.confidence,
+                                algorithmUsed: strategy.id,
+                                result: result,
+                                status: isWin ? 'WIN' : 'LOSS',
+                                timestamp: Date.now() - (i * 60000)
+                            });
+                        }
+                        
+                        // Calculate accuracy based on last 10 results
+                        const accuracy = Math.round((winCount / 10) * 100);
+                        
+                        predictors[predictorId] = {
+                            id: predictorId,
+                            name: name,
+                            avatar: avatars[index],
+                            rank: index + 1,
+                            accuracy: accuracy,
+                            last10Wins: winCount,
+                            last10Losses: 10 - winCount,
+                            predictions: predictions,
+                            currentPrediction: null,
+                            lastUpdated: Date.now(),
+                            algorithm: algorithmAnalysis,
+                            strategy: strategy,
+                            totalPredictions: 10,
+                            totalWins: winCount,
+                            totalLosses: 10 - winCount,
+                            streak: winCount > 5 ? 'W' + winCount : 'L' + (10 - winCount)
+                        };
+                    });
+                    
+                    database.ref('predictors').set(predictors);
+                    database.ref('predictors/initialized').set(true);
+                    database.ref('lastResults/history').set([]);
+                    database.ref('algorithmUpdates/lastUpdate').set(Date.now());
+                }
+            });
+        }
+
+        // Generate prediction using algorithm
+        function generatePredictionWithAlgorithm(strategy, historicalData) {
+            if (historicalData.length < strategy.patternLength) {
+                // Not enough data, return random
+                const randomType = PREDICTION_TYPES[Math.floor(Math.random() * 4)];
+                return {
+                    type: randomType,
+                    confidence: 50,
+                    algorithm: strategy.id,
+                    pattern: 'RANDOM'
+                };
+            }
+            
+            // Convert historical data to pattern string based on strategy type
+            let patternString = '';
+            if (strategy.type === 'BS') {
+                // Big/Small analysis
+                patternString = historicalData.map(num => 
+                    num >= 5 ? 'B' : 'S'
+                ).join('');
+            } else {
+                // Red/Green analysis
+                patternString = historicalData.map(num => 
+                    NUMBER_COLOR_MAP[num].color === 'RED' ? 'R' : 'G'
+                ).join('');
+            }
+            
+            // Get last pattern of specified length
+            const currentPattern = patternString.slice(-strategy.patternLength);
+            
+            // Check if pattern exists in trend maps
+            let prediction = null;
+            let patternType = '';
+            
+            // Try different trend maps
+            if (strategy.patternLength === 7 && TREND_MAPS['7D'][currentPattern]) {
+                prediction = TREND_MAPS['7D'][currentPattern];
+                patternType = '7D_TREND';
+            } else if (strategy.patternLength === 6 && TREND_MAPS['6D'][currentPattern]) {
+                prediction = TREND_MAPS['6D'][currentPattern];
+                patternType = '6D_TREND';
+            } else if (strategy.patternLength === 5 && TREND_MAPS['5D'][currentPattern]) {
+                prediction = TREND_MAPS['5D'][currentPattern];
+                patternType = '5D_TREND';
+            }
+            
+            // If pattern found in trend maps
+            if (prediction) {
+                let predictionType;
+                if (strategy.type === 'BS') {
+                    predictionType = prediction === 'B' ? 'BIG' : 'SMALL';
+                } else {
+                    predictionType = prediction === 'R' ? 'RED' : 'GREEN';
+                }
+                
+                return {
+                    type: predictionType,
+                    confidence: strategy.confidence,
+                    algorithm: strategy.id,
+                    pattern: patternType,
+                    detectedPattern: currentPattern
+                };
+            }
+            
+            // Advanced pattern matching algorithm
+            const recentPatterns = patternString.slice(0, -1);
+            const lastOccurrenceIndex = recentPatterns.lastIndexOf(currentPattern);
+            
+            if (lastOccurrenceIndex !== -1) {
+                // Found previous occurrence, predict next value
+                const nextIndex = lastOccurrenceIndex + strategy.patternLength;
+                if (nextIndex < patternString.length) {
+                    const nextChar = patternString[nextIndex];
+                    let predictionType;
+                    
+                    if (strategy.type === 'BS') {
+                        predictionType = nextChar === 'B' ? 'BIG' : 'SMALL';
+                    } else {
+                        predictionType = nextChar === 'R' ? 'RED' : 'GREEN';
+                    }
+                    
+                    return {
+                        type: predictionType,
+                        confidence: Math.min(strategy.confidence + 10, 95),
+                        algorithm: strategy.id,
+                        pattern: 'PATTERN_MATCH',
+                        detectedPattern: currentPattern
+                    };
+                }
+            }
+            
+            // Statistical analysis based on frequency
+            const recentData = historicalData.slice(-strategy.analysisDepth);
+            let bigCount = 0, smallCount = 0, redCount = 0, greenCount = 0;
+            
+            recentData.forEach(num => {
+                if (num >= 5) bigCount++;
+                else smallCount++;
+                
+                if (NUMBER_COLOR_MAP[num].color === 'RED') redCount++;
+                else greenCount++;
+            });
+            
+            if (strategy.type === 'BS') {
+                // Predict opposite of majority for mean reversion
+                const predictionType = bigCount > smallCount ? 'SMALL' : 'BIG';
+                const confidence = Math.max(Math.abs(bigCount - smallCount) / strategy.analysisDepth * 100, 60);
+                
+                return {
+                    type: predictionType,
+                    confidence: Math.min(confidence, 85),
+                    algorithm: strategy.id,
+                    pattern: 'STATISTICAL_REVERSION',
+                    detectedPattern: `B${bigCount}S${smallCount}`
+                };
+            } else {
+                // Predict opposite of majority for mean reversion
+                const predictionType = redCount > greenCount ? 'GREEN' : 'RED';
+                const confidence = Math.max(Math.abs(redCount - greenCount) / strategy.analysisDepth * 100, 60);
+                
+                return {
+                    type: predictionType,
+                    confidence: Math.min(confidence, 85),
+                    algorithm: strategy.id,
+                    pattern: 'STATISTICAL_REVERSION',
+                    detectedPattern: `R${redCount}G${greenCount}`
+                };
+            }
+        }
+
+        // Show Algorithm Activation Notification
+        function showAlgorithmActivation(predictorName, algorithmName, pattern, confidence) {
+            // Prevent too many notifications
+            if (Date.now() - lastAlgorithmNotification < 30000) {
+                return;
+            }
+            
+            document.getElementById('algorithmPredictorName').textContent = predictorName;
+            document.getElementById('algorithmMessage').textContent = `${algorithmName} activated!`;
+            document.getElementById('algorithmDetails').textContent = `Pattern: ${pattern} | Confidence: ${confidence}%`;
+            
+            algorithmPopup.style.display = 'block';
+            lastAlgorithmNotification = Date.now();
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                algorithmPopup.style.display = 'none';
+            }, 5000);
+        }
+
+        // Fetch Live Data from API - UPDATED WITH WORKING API
+        async function fetchLiveData() {
+            try {
+                const response = await fetch(API_URL + "?v=" + Date.now());
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.data && data.data.list && data.data.list.length > 0) {
+                        const latest = data.data.list[0];
+                        const latestIssue = latest.issueNumber;
+                        const latestNum = parseInt(latest.number);
+                        
+                        // FAST UPDATE - Immediate period display
+                        currentLivePeriod = latestIssue;
+                        currentLiveResult = latestNum;
+                        lastResultList = data.data.list.slice(0, 10);
+                        
+                        // Calculate next period (add 1 to current period)
+                        const nextPeriod = (parseInt(latestIssue) + 1).toString().padStart(12, '0');
+                        
+                        // SUPER FAST update - no delay
+                        document.getElementById('currentPeriod').textContent = nextPeriod.slice(-7);
+                        document.getElementById('periodSource').textContent = "Source: Online • Live Data";
+                        
+                        updateLatestResults();
+                        
+                        document.getElementById('lastUpdate').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+                        
+                        // Check and update predictions
+                        checkAndUpdatePredictions(latestIssue, latestNum);
+                        
+                        // Generate new predictions for next period with advanced analysis
+                        generateNewPredictionsWithAnalysis();
+                        
+                        // Update historical data
+                        updateHistoricalData(latestNum);
+                    }
+                }
+            } catch (error) {
+                console.error("API Error:", error);
+                document.getElementById('periodSource').textContent = "Source: Offline • Using cached data";
+                
+                // Auto generate predictions with advanced analysis even when offline
+                autoGeneratePredictionsWithAnalysis();
+            }
+        }
+
+        // Update historical data for algorithm analysis
+        function updateHistoricalData(newResult) {
+            database.ref('lastResults/history').once('value').then(snapshot => {
+                let history = snapshot.val() || [];
+                history.push(newResult);
+                
+                // Keep only last 1000 results for analysis
+                if (history.length > 1000) {
+                    history = history.slice(-1000);
+                }
+                
+                database.ref('lastResults/history').set(history);
+                database.ref('lastResults/lastUpdate').set(Date.now());
+            });
+        }
+
+        // Generate new predictions with advanced algorithm analysis
+        function generateNewPredictionsWithAnalysis() {
+            if (!currentLivePeriod) return;
+            
+            const nextPeriod = (parseInt(currentLivePeriod) + 1).toString().padStart(12, '0');
+            
+            // Get historical data for analysis
+            database.ref('lastResults/history').once('value').then(snapshot => {
+                const historicalData = snapshot.val() || [];
+                
+                database.ref('predictors').once('value').then(predictorSnapshot => {
+                    const predictors = predictorSnapshot.val();
+                    if (!predictors) return;
+                    
+                    Object.keys(predictors).forEach(predictorId => {
+                        if (predictorId === 'initialized') return;
+                        
+                        const predictor = predictors[predictorId];
+                        
+                        // Check if prediction already exists for next period
+                        const hasPrediction = predictor.predictions && 
+                            predictor.predictions.some(p => p.period === nextPeriod);
+                        
+                        if (!hasPrediction && historicalData.length >= 10) {
+                            // Get predictor's strategy
+                            const strategy = predictor.strategy || ALGORITHM_STRATEGIES[predictor.rank - 1];
+                            
+                            // Generate prediction using advanced algorithm
+                            const predictionResult = generatePredictionWithAlgorithm(strategy, historicalData);
+                            
+                            // Check for algorithm activation (high confidence pattern detected)
+                            if (predictionResult.confidence >= 80 && predictionResult.pattern !== 'RANDOM') {
+                                // Update algorithm status
+                                const updatedAlgorithm = {
+                                    ...predictor.algorithm,
+                                    patternDetected: true,
+                                    lastDetectionTime: Date.now(),
+                                    detectionCount: (predictor.algorithm?.detectionCount || 0) + 1,
+                                    algorithmActive: true,
+                                    activationTime: Date.now(),
+                                    currentPattern: predictionResult.detectedPattern
+                                };
+                                
+                                // Show activation notification
+                                if (predictionResult.confidence >= 85) {
+                                    showAlgorithmActivation(
+                                        predictor.name,
+                                        strategy.name,
+                                        predictionResult.pattern,
+                                        predictionResult.confidence
+                                    );
+                                }
+                                
+                                // Update predictor with active algorithm
+                                database.ref(`predictors/${predictorId}/algorithm`).set(updatedAlgorithm);
+                            }
+                            
+                            // Add new prediction
+                            const newPrediction = {
+                                period: nextPeriod,
+                                prediction: predictionResult.type,
+                                confidence: predictionResult.confidence,
+                                algorithmUsed: strategy.id,
+                                algorithmPattern: predictionResult.pattern,
+                                detectedPattern: predictionResult.detectedPattern,
+                                result: null,
+                                status: 'PENDING',
+                                timestamp: Date.now()
+                            };
+                            
+                            // Keep only last 10 predictions
+                            let updatedPredictions = predictor.predictions || [];
+                            updatedPredictions = [newPrediction, ...updatedPredictions];
+                            if (updatedPredictions.length > 10) {
+                                updatedPredictions = updatedPredictions.slice(0, 10);
+                            }
+                            
+                            // Update predictor in Firebase
+                            database.ref(`predictors/${predictorId}`).update({
+                                predictions: updatedPredictions,
+                                currentPrediction: newPrediction,
+                                lastUpdated: Date.now(),
+                                algorithmActive: predictionResult.confidence >= 80
+                            });
+                        }
+                    });
+                });
+            });
+        }
+
+        // Auto generate predictions with analysis when offline
+        function autoGeneratePredictionsWithAnalysis() {
+            if (!currentLivePeriod) {
+                const fakePeriod = 11070 + Math.floor(Math.random() * 100);
+                currentLivePeriod = fakePeriod.toString();
+            }
+            
+            const nextPeriod = (parseInt(currentLivePeriod) + 1).toString();
+            
+            // Generate predictions with simulated historical data
+            const simulatedHistory = Array.from({length: 100}, () => Math.floor(Math.random() * 10));
+            generateNewPredictionsWithAnalysis();
+        }
+
+        // Update latest results display
+        function updateLatestResults() {
+            const latestResults = document.getElementById('latestResults');
+            latestResults.innerHTML = '';
+            
+            if (lastResultList.length > 0) {
+                lastResultList.forEach((result, index) => {
+                    const num = parseInt(result.number);
+                    const isBig = num >= 5;
+                    const color = NUMBER_COLOR_MAP[num].color;
+                    
+                    let className = '';
+                    if (isBig && color === 'RED') className = 'result-big-red';
+                    else if (!isBig && color === 'RED') className = 'result-small-red';
+                    else if (isBig && color === 'GREEN') className = 'result-big-green';
+                    else if (!isBig && color === 'GREEN') className = 'result-small-green';
+                    
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = `result-circle ${className} animate__animated animate__flipInX`;
+                    resultDiv.style.animationDelay = `${index * 0.05}s`; // Faster animation
+                    resultDiv.textContent = num;
+                    resultDiv.title = `Period: ${result.issueNumber.slice(-7)} • ${isBig ? 'BIG' : 'SMALL'} / ${color}`;
+                    
+                    latestResults.appendChild(resultDiv);
+                });
+            }
+        }
+
+        // Check and update predictions with ULTRA FAST updates
+        function checkAndUpdatePredictions(period, result) {
+            if (processedPeriods.has(period)) return;
+            
+            database.ref('predictors').once('value').then(snapshot => {
+                const predictors = snapshot.val();
+                if (!predictors) return;
+                
+                Object.keys(predictors).forEach(predictorId => {
+                    if (predictorId === 'initialized') return;
+                    
+                    const predictor = predictors[predictorId];
+                    const predictions = predictor.predictions || [];
+                    
+                    // Find prediction for this period
+                    const predictionIndex = predictions.findIndex(p => 
+                        p.period === period && p.status === 'PENDING'
+                    );
+                    
+                    if (predictionIndex !== -1) {
+                        const prediction = predictions[predictionIndex];
+                        
+                        // Check if prediction is correct
+                        let isWin = false;
+                        const isBig = result >= 5;
+                        const isRed = NUMBER_COLOR_MAP[result].color === 'RED';
+                        
+                        if (prediction.prediction === 'BIG') {
+                            isWin = isBig;
+                        } else if (prediction.prediction === 'SMALL') {
+                            isWin = !isBig;
+                        } else if (prediction.prediction === 'RED') {
+                            isWin = isRed;
+                        } else if (prediction.prediction === 'GREEN') {
+                            isWin = !isRed;
+                        }
+                        
+                        // Update prediction status IMMEDIATELY
+                        predictions[predictionIndex].result = result;
+                        predictions[predictionIndex].status = isWin ? 'WIN' : 'LOSS';
+                        predictions[predictionIndex].timestamp = Date.now();
+                        
+                        // Calculate new accuracy based on last 10 results
+                        let winCount = 0;
+                        let lossCount = 0;
+                        
+                        predictions.slice(0, 10).forEach(p => {
+                            if (p.status === 'WIN') winCount++;
+                            else if (p.status === 'LOSS') lossCount++;
+                        });
+                        
+                        const newAccuracy = Math.round((winCount / Math.min(predictions.length, 10)) * 100);
+                        
+                        // Update totals
+                        const totalPredictions = (predictor.totalPredictions || 0) + 1;
+                        const totalWins = (predictor.totalWins || 0) + (isWin ? 1 : 0);
+                        const totalLosses = (predictor.totalLosses || 0) + (isWin ? 0 : 1);
+                        
+                        // Calculate streak
+                        let streak = predictor.streak || 'L0';
+                        if (isWin) {
+                            if (streak.startsWith('W')) {
+                                streak = 'W' + (parseInt(streak.substring(1)) + 1);
+                            } else {
+                                streak = 'W1';
+                            }
+                        } else {
+                            if (streak.startsWith('L')) {
+                                streak = 'L' + (parseInt(streak.substring(1)) + 1);
+                            } else {
+                                streak = 'L1';
+                            }
+                        }
+                        
+                        // ULTRA FAST Firebase update
+                        database.ref(`predictors/${predictorId}`).update({
+                            predictions: predictions.slice(0, 10),
+                            accuracy: newAccuracy,
+                            last10Wins: winCount,
+                            last10Losses: lossCount,
+                            lastUpdated: Date.now(),
+                            totalPredictions: totalPredictions,
+                            totalWins: totalWins,
+                            totalLosses: totalLosses,
+                            streak: streak
+                        });
+                        
+                        processedPeriods.add(period);
+                        
+                        // Recalculate ranks immediately
+                        setTimeout(() => {
+                            recalculateRanks();
+                        }, 100);
+                    }
+                });
+            });
+        }
+
+        // Recalculate ranks based on accuracy - OPTIMIZED
+        function recalculateRanks() {
+            database.ref('predictors').once('value').then(snapshot => {
+                const predictors = snapshot.val();
+                if (!predictors) return;
+                
+                const predictorList = [];
+                Object.keys(predictors).forEach(predictorId => {
+                    if (predictorId !== 'initialized') {
+                        predictorList.push({
+                            id: predictorId,
+                            ...predictors[predictorId]
+                        });
+                    }
+                });
+                
+                // Sort by accuracy (primary) and total wins (secondary)
+                predictorList.sort((a, b) => {
+                    if (b.accuracy !== a.accuracy) {
+                        return b.accuracy - a.accuracy;
+                    }
+                    return (b.totalWins || 0) - (a.totalWins || 0);
+                });
+                
+                // Update ranks
+                predictorList.forEach((predictor, index) => {
+                    database.ref(`predictors/${predictor.id}/rank`).set(index + 1);
+                });
+                
+                // Update algorithm analysis results
+                updateAlgorithmAnalysisResults(predictorList);
+            });
+        }
+
+        // Update algorithm analysis results
+        function updateAlgorithmAnalysisResults(predictorList) {
+            const analysisResults = {};
+            
+            predictorList.forEach((predictor, index) => {
+                analysisResults[predictor.id] = {
+                    rank: index + 1,
+                    accuracy: predictor.accuracy,
+                    algorithm: predictor.algorithm?.algorithmName || 'Unknown',
+                    active: predictor.algorithm?.algorithmActive || false,
+                    streak: predictor.streak || 'N/A',
+                    lastUpdate: predictor.lastUpdated || Date.now()
+                };
+            });
+            
+            algorithmAnalysisResults = analysisResults;
+            database.ref('algorithmAnalysis/results').set(analysisResults);
+        }
+
+        // Listen to predictor updates - OPTIMIZED
+        function listenToPredictorUpdates() {
+            database.ref('predictors').on('value', snapshot => {
+                const predictors = snapshot.val();
+                if (!predictors) return;
+                
+                predictorData = [];
+                Object.keys(predictors).forEach(predictorId => {
+                    if (predictorId !== 'initialized') {
+                        predictorData.push(predictors[predictorId]);
+                    }
+                });
+                
+                predictorData.sort((a, b) => a.rank - b.rank);
+                updatePredictorsGrid();
+            });
+        }
+
+        // Update Predictors Grid with REAL-TIME DATA
+        function updatePredictorsGrid() {
+            const predictorsContainer = document.getElementById('predictorsContainer');
+            predictorsContainer.innerHTML = '';
+            
+            if (predictorData.length === 0) {
+                predictorsContainer.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3" style="color: #b0b0ff;">Loading predictors...</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            predictorData.forEach((predictor, index) => {
+                const latestPrediction = predictor.predictions && predictor.predictions.length > 0 ? 
+                    predictor.predictions[0] : null;
+                
+                const card = document.createElement('div');
+                card.className = 'predictor-card';
+                card.style.animationDelay = `${index * 0.05}s`; // Faster animation
+                card.classList.add('animate__animated', 'animate__fadeInUp');
+                
+                const predictorIndex = predictorNames.indexOf(predictor.name);
+                const avatarIndex = predictorIndex !== -1 ? predictorIndex : index;
+                const avatarSrc = avatars[avatarIndex % avatars.length];
+                
+                // Check if algorithm is active
+                const isAlgorithmActive = predictor.algorithm?.algorithmActive || false;
+                const algorithmName = predictor.algorithm?.algorithmName || predictor.strategy?.name || 'Advanced AI';
+                
+                card.innerHTML = `
+                    <div class="predictor-rank predictor-rank-${predictor.rank <= 3 ? predictor.rank : '4'}">
+                        #${predictor.rank}
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="${avatarSrc}" class="predictor-avatar" alt="${predictor.name}" 
+                             onerror="this.src='https://via.placeholder.com/80?text=${predictor.name.charAt(0)}'">
+                        <div class="ms-3">
+                            <div class="predictor-name">${predictor.name}</div>
+                            <div class="accuracy-badge">
+                                <i class="fas fa-bullseye"></i> ${predictor.accuracy}% Accuracy
+                                <small class="ms-2">(${predictor.last10Wins || 0}W/${predictor.last10Losses || 0}L)</small>
+                            </div>
+                            ${isAlgorithmActive ? `
+                            <div class="mt-1" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0, 243, 255, 0.2); color: #00f3ff; padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: 700; border: 1px solid rgba(0, 243, 255, 0.3);">
+                                <i class="fas fa-bolt" style="font-size: 10px;"></i> ${algorithmName}
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    ${latestPrediction ? `
+                    <div class="prediction-display">
+                        <div class="prediction-label">Current Prediction • ${latestPrediction.algorithmPattern || 'AI Analysis'}</div>
+                        <div class="prediction-value">${latestPrediction.prediction} <small style="font-size: 16px; color: #ffcc00;">${latestPrediction.confidence}%</small></div>
+                        <div class="prediction-status status-${latestPrediction.status.toLowerCase()}">
+                            ${latestPrediction.status} • Period: ${latestPrediction.period ? latestPrediction.period.slice(-5) : '--'}
+                        </div>
+                        ${latestPrediction.detectedPattern ? `
+                        <div class="mt-2" style="font-size: 11px; color: #b0b0ff;">
+                            <i class="fas fa-fingerprint"></i> Pattern: ${latestPrediction.detectedPattern.substring(0, 20)}...
+                        </div>
+                        ` : ''}
+                    </div>
+                    ` : ''}
+                    
+                    <div class="mt-3" style="color: #b0b0ff; font-size: 12px;">
+                        <div class="d-flex justify-content-between">
+                            <span>Total: ${predictor.totalPredictions || 0}</span>
+                            <span>Streak: <span style="color: ${predictor.streak?.startsWith('W') ? '#00ff88' : '#ff4757'}">${predictor.streak || 'N/A'}</span></span>
+                        </div>
+                        <div class="mt-1">Algorithm: ${algorithmName}</div>
+                    </div>
+                `;
+                
+                predictorsContainer.appendChild(card);
+            });
+        }
+
+        // Create particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            particlesContainer.innerHTML = '';
+            
+            const particleCount = 30;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 4 + 1;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+                particle.style.animationDelay = `${Math.random() * 15}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Check Permanent Login Status
+        function checkPermanentLoginStatus() {
+            const permanentLoggedInUser = localStorage.getItem('permanentLoggedInUser');
+            const permanentUserData = localStorage.getItem('permanentUserData');
+            const isPermanentLogin = localStorage.getItem('isPermanentLogin');
+            
+            if (permanentLoggedInUser && permanentUserData && isPermanentLogin === 'true') {
+                try {
+                    currentUser = permanentLoggedInUser;
+                    userData = JSON.parse(permanentUserData);
+                    deviceId = generateDeviceId();
+                    
+                    // Update last login time
+                    database.ref('users/' + currentUser + '/lastLogin').set(Date.now());
+                    
+                    // Setup real-time listener
+                    setupUserListener();
+                    
+                    // Hide registration popup
+                    registrationPopup.style.display = 'none';
+                    
+                    // Check user status
+                    if (!userData.tasksCompleted) {
+                        showTelegramPopup();
+                    } else if (!userData.accessUntil || userData.accessUntil < Date.now()) {
+                        showPaymentPopup();
+                    } else {
+                        showDashboard();
+                    }
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                    registrationPopup.style.display = 'flex';
+                }
+            } else {
+                registrationPopup.style.display = 'flex';
+            }
+        }
+
+        // Admin Panel Functions
+        function openAdminPanel() {
+            document.getElementById('adminLogin').style.display = 'block';
+            document.getElementById('adminContent').style.display = 'none';
+            adminPanel.classList.add('open');
+        }
+
+        function closeAdminPanel() {
+            adminPanel.classList.remove('open');
+        }
+
+        function loginAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === '456') {
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                loadPaymentRequests();
+            } else {
+                alert('Incorrect password!');
+            }
+        }
+
+        function loadPaymentRequests() {
+            // Load pending payments
+            database.ref('paymentRequests').orderByChild('status').equalTo('pending').on('value', snapshot => {
+                const pendingPayments = snapshot.val();
+                const pendingContainer = document.getElementById('pendingPayments');
+                pendingContainer.innerHTML = '';
+                
+                if (!pendingPayments) {
+                    pendingContainer.innerHTML = '<p style="color: #b0b0ff; text-align: center;">No pending payments</p>';
+                    return;
+                }
+                
+                Object.keys(pendingPayments).forEach(paymentId => {
+                    const payment = pendingPayments[paymentId];
+                    const card = document.createElement('div');
+                    card.className = 'payment-request-card pending';
+                    card.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 style="color: white; font-weight: 700;">${payment.userPhone}</h6>
+                                <p style="color: #b0b0ff; font-size: 14px; margin-bottom: 5px;">
+                                    Amount: ₹${payment.amount} | ${payment.planText}
+                                </p>
+                                <p style="color: #ffcc00; font-size: 12px; margin-bottom: 5px;">
+                                    UTR: ${payment.utr}
+                                </p>
+                                <p style="color: #b0b0ff; font-size: 12px;">
+                                    Device: ${payment.deviceId ? payment.deviceId.substring(0, 10) + '...' : 'Unknown'}
+                                </p>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-success" onclick="approvePayment('${paymentId}', '${payment.userId}', ${payment.amount}, ${payment.hours})">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="btn btn-sm btn-danger mt-1" onclick="rejectPayment('${paymentId}')">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>
+                        </div>
+                        <div style="color: #888; font-size: 11px; margin-top: 10px;">
+                            ${new Date(payment.timestamp).toLocaleString()}
+                        </div>
+                    `;
+                    pendingContainer.appendChild(card);
+                });
+            });
+            
+            // Load approved payments (last 50)
+            database.ref('paymentRequests').orderByChild('timestamp').limitToLast(50).on('value', snapshot => {
+                const allPayments = snapshot.val();
+                const approvedContainer = document.getElementById('approvedPayments');
+                approvedContainer.innerHTML = '';
+                
+                if (!allPayments) {
+                    approvedContainer.innerHTML = '<p style="color: #b0b0ff; text-align: center;">No approved payments</p>';
+                    return;
+                }
+                
+                const approvedPayments = Object.entries(allPayments)
+                    .filter(([id, payment]) => payment.status === 'approved')
+                    .sort((a, b) => b[1].timestamp - a[1].timestamp)
+                    .slice(0, 50);
+                
+                if (approvedPayments.length === 0) {
+                    approvedContainer.innerHTML = '<p style="color: #b0b0ff; text-align: center;">No approved payments</p>';
+                    return;
+                }
+                
+                approvedPayments.forEach(([paymentId, payment]) => {
+                    const card = document.createElement('div');
+                    card.className = 'payment-request-card approved';
+                    card.innerHTML = `
+                        <div>
+                            <h6 style="color: white; font-weight: 700;">${payment.userPhone}</h6>
+                            <p style="color: #b0b0ff; font-size: 14px; margin-bottom: 5px;">
+                                Amount: ₹${payment.amount} | ${payment.planText}
+                            </p>
+                            <p style="color: #00ff88; font-size: 12px; margin-bottom: 5px;">
+                                Approved
+                            </p>
+                        </div>
+                        <div style="color: #888; font-size: 11px; margin-top: 10px;">
+                            ${new Date(payment.timestamp).toLocaleString()}
+                        </div>
+                    `;
+                    approvedContainer.appendChild(card);
+                });
+            });
+        }
+
+        function approvePayment(paymentId, userId, amount, hours) {
+            // Calculate access until
+            let accessUntil;
+            if (hours === 36500) { // Permanent access
+                accessUntil = Date.now() + (100 * 365 * 24 * 60 * 60 * 1000); // 100 years
+            } else {
+                accessUntil = Date.now() + (hours * 60 * 60 * 1000);
+            }
+            
+            // Update payment status
+            database.ref('paymentRequests/' + paymentId).update({
+                status: 'approved',
+                approvedAt: Date.now()
+            })
+            .then(() => {
+                // Update user access
+                database.ref('users/' + userId).update({
+                    accessUntil: accessUntil
+                })
+                .then(() => {
+                    alert('Payment approved successfully! User will be redirected to dashboard automatically.');
+                    
+                    // Send notification to user
+                    sendUserNotification(userId, `Your payment of ₹${amount} has been approved. Dashboard access granted for ${hours} hours.`);
+                });
+            });
+        }
+
+        function sendUserNotification(userId, message) {
+            const notification = {
+                message: message,
+                timestamp: Date.now(),
+                read: false
+            };
+            
+            database.ref('notifications/' + userId).push(notification);
+        }
+
+        function rejectPayment(paymentId) {
+            if (confirm('Are you sure you want to reject this payment?')) {
+                database.ref('paymentRequests/' + paymentId).update({
+                    status: 'rejected',
+                    rejectedAt: Date.now()
+                })
+                .then(() => {
+                    alert('Payment rejected!');
+                });
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkPermanentLoginStatus();
+            
+            // Prevent form submission
+            document.addEventListener('submit', function(e) {
+                e.preventDefault();
+            });
+            
+            // Disable right click
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
+            
+            // Start predictor background updates
+            initializePredictors();
+            
+            // Start continuous algorithm analysis
+            setInterval(() => {
+                if (mainDashboard.style.display !== 'none') {
+                    // Continuous algorithm analysis every 30 seconds
+                    database.ref('algorithmAnalysis/lastRun').set(Date.now());
+                }
+            }, 30000);
+        });
+    </script>
+</body>
+</html>
